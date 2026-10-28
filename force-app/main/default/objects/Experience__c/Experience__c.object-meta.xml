@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionOverrides>
@@ -128,14 +129,6 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
-        <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>Experience_Record_Page</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
-    </actionOverrides>
-    <actionOverrides>
-        <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -146,29 +139,21 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>The Experiences custom object is designed to comprehensively track and manage all guest-related activities and services offered by the resort, such as recreational activities, golf outings, spa treatments, and other special events.</description>
-    <enableActivities>false</enableActivities>
-    <enableBulkApi>false</enableBulkApi>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
-    <enableReports>false</enableReports>
+    <enableReports>true</enableReports>
     <enableSearch>true</enableSearch>
-    <enableSharing>false</enableSharing>
-    <enableStreamingApi>false</enableStreamingApi>
-    <externalSharingModel>Private</externalSharingModel>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
     <label>Experience</label>
     <nameField>
         <label>Experience Name</label>
         <type>Text</type>
     </nameField>
     <pluralLabel>Experiences</pluralLabel>
-    <searchLayouts>
-        <searchResultsAdditionalFields>Type__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Description__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Location__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Capacity__c</searchResultsAdditionalFields>
-    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
-    <visibility>Public</visibility>
 </CustomObject>
+
