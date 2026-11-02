@@ -135,6 +135,23 @@ public with sharing class AgriChainFactoryController {
     }
 
     @AuraEnabled(cacheable=true)
+    public static List<Farmer_Response__c> listMyFactoryResponses(Integer maxRows) {
+        Integer limitRows = (maxRows == null || maxRows < 1 || maxRows > 200) ? 50 : maxRows;
+        Id currentUser = UserInfo.getUserId();
+
+        return [
+            SELECT Id, Name, Requirement__c, Crop_Listing__c, Farmer__c,
+                   Offered_Qty_Kg__c, Offered_Price_Per_Kg__c, Message__c,
+                   Status__c, CreatedDate
+            FROM Farmer_Response__c
+            WHERE Requirement__r.Factory__c = :currentUser
+            WITH USER_MODE
+            ORDER BY CreatedDate DESC
+            LIMIT :limitRows
+        ];
+    }
+
+    @AuraEnabled(cacheable=true)
     public static List<AgriChain_Order__c> listMyOrders(Integer maxRows) {
         Integer limitRows = (maxRows == null || maxRows < 1 || maxRows > 200) ? 50 : maxRows;
         Id currentUser = UserInfo.getUserId();

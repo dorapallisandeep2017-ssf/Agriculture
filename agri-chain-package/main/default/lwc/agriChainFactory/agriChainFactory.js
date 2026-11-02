@@ -1,14 +1,17 @@
 import { LightningElement } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 import listOpenRequirements
     from '@salesforce/apex/AgriChainFactoryController.listOpenRequirements';
+import listMyFactoryResponses
+    from '@salesforce/apex/AgriChainFactoryController.listMyFactoryResponses';
 import listMyOrders
     from '@salesforce/apex/AgriChainFactoryController.listMyOrders';
 import listMyWalletTransactions
     from '@salesforce/apex/AgriChainFactoryController.listMyWalletTransactions';
 
-export default class AgriChainFactory extends LightningElement {
+export default class AgriChainFactory extends NavigationMixin(LightningElement) {
     openRequirementsCount = 0;
     responsesCount = 0;
     activeOrdersCount = 0;
@@ -26,13 +29,17 @@ export default class AgriChainFactory extends LightningElement {
         this.errorMessage = '';
 
         try {
-            const [requirements, orders, transactions] = await Promise.all([
-                listOpenRequirements({ maxRows: 200 }),
-                listMyOrders({ maxRows: 200 }),
-                listMyWalletTransactions({ maxRows: 200 })
-            ]);
+            const [requirements, responses, orders, transactions] =
+                await Promise.all([
+                    listOpenRequirements({ maxRows: 200 }),
+                    listMyFactoryResponses({ maxRows: 200 }),
+                    listMyOrders({ maxRows: 200 }),
+                    listMyWalletTransactions({ maxRows: 200 })
+                ]);
 
             this.openRequirementsCount = requirements.length;
+            this.responsesCount = responses.length;
+
             this.activeOrdersCount = orders.filter(
                 order => !['Delivered', 'Cancelled'].includes(order.Status__c)
             ).length;
@@ -41,12 +48,12 @@ export default class AgriChainFactory extends LightningElement {
                 transaction => transaction.Status__c === 'Pending'
             ).length;
 
-            // Response count will be connected to a dedicated Apex method next.
-            this.responsesCount = 0;
         } catch (error) {
             this.errorMessage =
                 error?.body?.message || 'Unable to load the factory dashboard.';
+
             this.showToast('Dashboard error', this.errorMessage, 'error');
+
         } finally {
             this.isLoading = false;
         }
@@ -73,19 +80,13 @@ export default class AgriChainFactory extends LightningElement {
     }
 
     openObjectTab(objectApiName) {
-        this.dispatchEvent(
-            new CustomEvent('openobject', {
-                detail: { objectApiName },
-                bubbles: true,
-                composed: true
-            })
-        );
-
-        this.showToast(
-            'Navigation',
-            `Requested navigation to ${objectApiName}.`,
-            'info'
-        );
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: {
+                objectApiName,
+                actionName: 'list'
+            }
+        });
     }
 
     showToast(title, message, variant) {

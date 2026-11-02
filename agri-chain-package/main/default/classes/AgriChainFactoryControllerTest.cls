@@ -80,6 +80,12 @@ private class AgriChainFactoryControllerTest {
             Id responseId = AgriChainFactoryController.submitResponse(
                 req.Id, listing.Id, 100, 28, 'Fresh harvest'
             );
+            List<Farmer_Response__c> factoryResponses =
+                AgriChainFactoryController.listMyFactoryResponses(50);
+
+            System.assertEquals(1, factoryResponses.size());
+            System.assertEquals(responseId, factoryResponses[0].Id);
+
             Id orderId = AgriChainFactoryController.acceptResponse(responseId, 27);
             Test.stopTest();
 
