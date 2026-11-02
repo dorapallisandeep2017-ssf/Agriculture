@@ -169,6 +169,16 @@ public with sharing class AgriChainFactoryController {
         Set<String> allowed = new Set<String>{'Pending','Scheduled','Picked Up','In Transit','Delivered','Failed'};
         if (String.isBlank(status) || !allowed.contains(status))
             throw new AuraHandledException('Invalid delivery status.');
+
+        Id currentUser = UserInfo.getUserId();
+        AgriChain_Order__c authorizedOrder = [
+            SELECT Id, Status__c
+            FROM AgriChain_Order__c
+            WHERE Id = :orderId AND Factory__c = :currentUser
+            WITH USER_MODE
+            LIMIT 1
+        ];
+
         List<AgriChain_Delivery__c> existing = [SELECT Id FROM AgriChain_Delivery__c
                                                 WHERE Order__c = :orderId WITH USER_MODE LIMIT 1];
         AgriChain_Delivery__c deliveryRec;
@@ -213,6 +223,165 @@ public with sharing class AgriChainFactoryController {
                        Reference__c, Description__c, CreatedDate
                 FROM AgriChain_Wallet_Transaction__c WHERE Owner__c = :UserInfo.getUserId()
                 WITH USER_MODE ORDER BY CreatedDate DESC LIMIT :limitRows];
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<AgriChain_Order__c> listMyFactoryOrders(Integer maxRows) {
+        Integer limitRows = (maxRows == null || maxRows < 1 || maxRows > 200)
+            ? 50 : maxRows;
+        Id currentUser = UserInfo.getUserId();
+
+        return [
+            SELECT Id, Name, Farmer__c, Factory__c, Total_Amount__c,
+                   Order_Date__c, Status__c
+            FROM AgriChain_Order__c
+            WHERE Factory__c = :currentUser
+            WITH USER_MODE
+            ORDER BY CreatedDate DESC
+            LIMIT :limitRows
+        ];
+    }
+
+    @AuraEnabled
+    public static void updateFactoryOrderStatus(Id orderId, String status) {
+        if (orderId == null) {
+            throw new AuraHandledException('Order is required.');
+        }
+
+        if (String.isBlank(status) ||
+            !new Set<String>{'Preparing', 'Cancelled'}.contains(status)) {
+            throw new AuraHandledException('Invalid factory order status.');
+        }
+
+        Id currentUser = UserInfo.getUserId();
+
+        AgriChain_Order__c orderRec = [
+            SELECT Id, Status__c
+            FROM AgriChain_Order__c
+            WHERE Id = :orderId AND Factory__c = :currentUser
+            WITH USER_MODE
+            FOR UPDATE
+        ];
+
+        if (status == 'Preparing' && orderRec.Status__c != 'Confirmed') {
+            throw new AuraHandledException(
+                'Only confirmed orders can be moved to Preparing.'
+            );
+        }
+
+        if (status == 'Cancelled' &&
+            !new Set<String>{'Confirmed', 'Preparing'}.contains(orderRec.Status__c)) {
+            throw new AuraHandledException(
+                'Only confirmed or preparing orders can be cancelled.'
+            );
+        }
+
+        orderRec.Status__c = status;
+        update as user orderRec;
+    }
+
+
+    // Returns all crop listings owned by the logged-in farmer.
+    @AuraEnabled(cacheable=true)
+    public static List<Crop_Listing__c> listMyCropListings(Integer maxRows) {
+        Integer limitRows = (maxRows == null || maxRows < 1 || maxRows > 200)
+            ? 50 : maxRows;
+        Id currentUser = UserInfo.getUserId();
+
+        return [
+            SELECT Id, Name, Farmer__c, Crop_Name__c, Variety__c,
+                   Quantity_Kg__c, Price_Per_Kg__c, Location__c,
+                   Harvest_Date__c, Status__c
+            FROM Crop_Listing__c
+            WHERE Farmer__c = :currentUser
+            WITH USER_MODE
+            ORDER BY CreatedDate DESC
+            LIMIT :limitRows
+        ];
+    }
+
+    // Updates only a listing owned by the current farmer.
+    @AuraEnabled
+    public static void updateCropListing(
+        Id listingId,
+        String cropName,
+        String variety,
+        Decimal quantityKg,
+        Decimal pricePerKg,
+        String location,
+        Date harvestDate
+    ) {
+        if (listingId == null) {
+            throw new AuraHandledException('Crop listing is required.');
+        }
+        if (String.isBlank(cropName)) {
+            throw new AuraHandledException('Crop name is required.');
+        }
+        requirePositive(quantityKg, 'Quantity must be greater than zero.');
+        requirePositive(pricePerKg, 'Price per kg must be greater than zero.');
+
+        if (harvestDate != null && harvestDate < Date.today()) {
+            throw new AuraHandledException('Harvest date cannot be in the past.');
+        }
+
+        Id currentUser = UserInfo.getUserId();
+
+        Crop_Listing__c item = [
+            SELECT Id, Status__c
+            FROM Crop_Listing__c
+            WHERE Id = :listingId AND Farmer__c = :currentUser
+            WITH USER_MODE
+            LIMIT 1
+            FOR UPDATE
+        ];
+
+        if (item.Status__c == 'Sold' || item.Status__c == 'Reserved') {
+            throw new AuraHandledException(
+                'Reserved or sold listings cannot be edited.'
+            );
+        }
+
+        item.Crop_Name__c = cropName.trim();
+        item.Variety__c = variety;
+        item.Quantity_Kg__c = quantityKg;
+        item.Price_Per_Kg__c = pricePerKg;
+        item.Location__c = location;
+        item.Harvest_Date__c = harvestDate;
+
+        update as user item;
+    }
+
+    // Farmers can activate or deactivate their own unreserved listings.
+    @AuraEnabled
+    public static void updateCropListingStatus(Id listingId, String newStatus) {
+        if (listingId == null) {
+            throw new AuraHandledException('Crop listing is required.');
+        }
+        if (!new Set<String>{'Active', 'Inactive'}.contains(newStatus)) {
+            throw new AuraHandledException(
+                'Farmers can only activate or deactivate listings.'
+            );
+        }
+
+        Id currentUser = UserInfo.getUserId();
+
+        Crop_Listing__c item = [
+            SELECT Id, Status__c
+            FROM Crop_Listing__c
+            WHERE Id = :listingId AND Farmer__c = :currentUser
+            WITH USER_MODE
+            LIMIT 1
+            FOR UPDATE
+        ];
+
+        if (item.Status__c == 'Sold' || item.Status__c == 'Reserved') {
+            throw new AuraHandledException(
+                'Reserved or sold listings cannot be changed manually.'
+            );
+        }
+
+        item.Status__c = newStatus;
+        update as user item;
     }
 
     private static void requirePositive(Decimal value, String message) {

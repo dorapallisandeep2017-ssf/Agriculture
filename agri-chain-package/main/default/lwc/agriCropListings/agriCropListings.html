@@ -1,0 +1,128 @@
+<template>
+    <lightning-card title="Crop Listing Management"
+                    icon-name="standard:product">
+        <div class="slds-p-around_medium">
+            <div class="form-panel">
+                <h2 class="section-title">
+                    {formTitle}
+                </h2>
+
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            label="Crop Name"
+                            value={cropName}
+                            data-field="cropName"
+                            onchange={handleInput}
+                            required>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            label="Variety"
+                            value={variety}
+                            data-field="variety"
+                            onchange={handleInput}>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            label="Quantity (kg)"
+                            min="0.01"
+                            step="0.01"
+                            value={quantityKg}
+                            data-field="quantityKg"
+                            onchange={handleInput}
+                            required>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="number"
+                            label="Price per kg"
+                            min="0.01"
+                            step="0.01"
+                            value={pricePerKg}
+                            data-field="pricePerKg"
+                            onchange={handleInput}
+                            required>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            label="Location"
+                            value={location}
+                            data-field="location"
+                            onchange={handleInput}>
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <lightning-input
+                            type="date"
+                            label="Harvest Date"
+                            value={harvestDate}
+                            data-field="harvestDate"
+                            onchange={handleInput}>
+                        </lightning-input>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <lightning-button
+                        variant="brand"
+                        label={submitLabel}
+                        onclick={handleSave}
+                        disabled={isSaving}>
+                    </lightning-button>
+                    <template lwc:if={isEditing}>
+                        <lightning-button
+                            label="Cancel Edit"
+                            onclick={handleCancelEdit}>
+                        </lightning-button>
+                    </template>
+                </div>
+            </div>
+
+            <div class="list-heading">
+                <h2 class="section-title">My Crop Listings</h2>
+                <lightning-button
+                    label="Refresh"
+                    icon-name="utility:refresh"
+                    onclick={loadListings}>
+                </lightning-button>
+            </div>
+
+            <lightning-input
+                type="search"
+                label="Search my listings"
+                placeholder="Search crop, variety or location"
+                value={searchTerm}
+                onchange={handleSearch}>
+            </lightning-input>
+
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Loading crop listings">
+                </lightning-spinner>
+            </template>
+
+            <template lwc:if={hasListings}>
+                <div class="table-wrap">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={filteredListings}
+                        columns={columns}
+                        onrowaction={handleRowAction}
+                        hide-checkbox-column>
+                    </lightning-datatable>
+                </div>
+            </template>
+
+            <template lwc:else>
+                <p class="empty-state">
+                    No crop listings found. Create your first listing above.
+                </p>
+            </template>
+        </div>
+    </lightning-card>
+</template>

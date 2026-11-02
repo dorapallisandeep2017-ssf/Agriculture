@@ -1,0 +1,35 @@
+.form-panel {
+    padding: 1rem;
+    background: #f7faf7;
+    border: 1px solid #dce7de;
+    border-radius: 0.75rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.form-actions,
+.list-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.list-heading {
+    justify-content: space-between;
+    margin-top: 1.75rem;
+}
+
+.table-wrap {
+    margin-top: 1rem;
+}
+
+.empty-state {
+    padding: 1.5rem;
+    text-align: center;
+    color: #526157;
+}

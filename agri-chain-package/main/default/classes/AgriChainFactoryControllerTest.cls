@@ -99,6 +99,24 @@ private class AgriChainFactoryControllerTest {
             System.assertEquals(2700, orders[0].Total_Amount__c);
             System.assertEquals(27, orders[0].Agreed_Price_Per_Kg__c);
 
+            List<AgriChain_Order__c> factoryOrders =
+                AgriChainFactoryController.listMyFactoryOrders(50);
+
+            System.assertEquals(1, factoryOrders.size());
+            System.assertEquals(orderId, factoryOrders[0].Id);
+            System.assertEquals('Confirmed', factoryOrders[0].Status__c);
+
+            AgriChainFactoryController.updateFactoryOrderStatus(
+                orderId, 'Preparing'
+            );
+
+            AgriChain_Order__c updatedOrder = [
+                SELECT Status__c
+                FROM AgriChain_Order__c
+                WHERE Id = :orderId
+            ];
+            System.assertEquals('Preparing', updatedOrder.Status__c);
+
             Farmer_Response__c savedResponse = [
                 SELECT Status__c
                 FROM Farmer_Response__c
@@ -137,4 +155,66 @@ private class AgriChainFactoryControllerTest {
             );
         }
     }
+
+
+    @IsTest
+    static void cropListingManagementFlow() {
+        User testUser = getTestUser();
+
+        System.runAs(testUser) {
+            Id listingId = AgriChainFactoryController.createCropListing(
+                'Tomato', 'Hybrid', 500, 24.50, 'Hyderabad', Date.today()
+            );
+
+            Test.startTest();
+
+            List<Crop_Listing__c> mine =
+                AgriChainFactoryController.listMyCropListings(50);
+            System.assertEquals(1, mine.size());
+            System.assertEquals(listingId, mine[0].Id);
+
+            AgriChainFactoryController.updateCropListing(
+                listingId, 'Tomato', 'Premium Hybrid',
+                450, 26, 'Rangareddy', Date.today().addDays(1)
+            );
+
+            AgriChainFactoryController.updateCropListingStatus(
+                listingId, 'Inactive'
+            );
+
+            Test.stopTest();
+
+            Crop_Listing__c updated = [
+                SELECT Crop_Name__c, Variety__c, Quantity_Kg__c,
+                       Price_Per_Kg__c, Location__c, Status__c
+                FROM Crop_Listing__c
+                WHERE Id = :listingId
+            ];
+
+            System.assertEquals('Tomato', updated.Crop_Name__c);
+            System.assertEquals('Premium Hybrid', updated.Variety__c);
+            System.assertEquals(450, updated.Quantity_Kg__c);
+            System.assertEquals(26, updated.Price_Per_Kg__c);
+            System.assertEquals('Rangareddy', updated.Location__c);
+            System.assertEquals('Inactive', updated.Status__c);
+        }
+    }
+
+    @IsTest
+    static void cropListingRejectsInvalidValues() {
+        User testUser = getTestUser();
+
+        System.runAs(testUser) {
+            Boolean rejected = false;
+            try {
+                AgriChainFactoryController.createCropListing(
+                    'Tomato', 'Hybrid', 0, 20, 'Hyderabad', Date.today()
+                );
+            } catch (Exception ex) {
+                rejected = true;
+            }
+            System.assertEquals(true, rejected);
+        }
+    }
+
 }

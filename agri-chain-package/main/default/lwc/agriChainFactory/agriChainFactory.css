@@ -116,3 +116,23 @@
         align-items: flex-start;
     }
 }
+
+
+.orders-section {
+    margin-top: 1.75rem;
+    padding: 1.25rem;
+    background: #ffffff;
+    border: 1px solid #dce7de;
+    border-radius: 0.75rem;
+}
+
+.order-count {
+    color: #526157;
+    font-size: 0.9rem;
+}
+
+.empty-orders {
+    padding: 1.5rem 0;
+    color: #526157;
+    text-align: center;
+}

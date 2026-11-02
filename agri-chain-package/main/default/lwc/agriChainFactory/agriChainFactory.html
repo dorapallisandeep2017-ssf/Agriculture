@@ -89,6 +89,31 @@
                     </lightning-button>
                 </section>
             </div>
+
+            <section class="orders-section">
+                <div class="section-heading">
+                    <h2>Factory Order Management</h2>
+                    <span class="order-count">
+                        {orders.length} orders
+                    </span>
+                </div>
+
+                <template lwc:if={orders.length}>
+                    <lightning-datatable
+                        key-field="Id"
+                        data={orders}
+                        columns={orderColumns}
+                        onrowaction={handleOrderAction}
+                        hide-checkbox-column>
+                    </lightning-datatable>
+                </template>
+
+                <template lwc:else>
+                    <p class="empty-orders">
+                        No factory orders found yet.
+                    </p>
+                </template>
+            </section>
         </div>
     </lightning-card>
 </template>
