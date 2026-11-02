@@ -1,0 +1,94 @@
+<template>
+    <lightning-card title="AgriChain Factory" icon-name="standard:dashboard">
+        <div class="dashboard-container">
+            <div class="welcome-section">
+                <h1>Factory Dashboard</h1>
+                <p>Manage crop requirements, farmer offers, orders and deliveries.</p>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span class="summary-label">Open Requirements</span>
+                    <strong>{openRequirementsCount}</strong>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-label">Farmer Responses</span>
+                    <strong>{responsesCount}</strong>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-label">Active Orders</span>
+                    <strong>{activeOrdersCount}</strong>
+                </div>
+                <div class="summary-card">
+                    <span class="summary-label">Pending Payments</span>
+                    <strong>{pendingPaymentsCount}</strong>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <h2>Factory Workspace</h2>
+                <lightning-button
+                    label="Refresh"
+                    icon-name="utility:refresh"
+                    onclick={handleRefresh}
+                    disabled={isLoading}>
+                </lightning-button>
+            </div>
+
+            <template lwc:if={errorMessage}>
+                <div class="error-message" role="alert">
+                    {errorMessage}
+                </div>
+            </template>
+
+            <template lwc:if={isLoading}>
+                <lightning-spinner
+                    alternative-text="Loading factory dashboard"
+                    size="medium">
+                </lightning-spinner>
+            </template>
+
+            <div class="workspace-grid">
+                <section class="workspace-panel">
+                    <h2>Crop Requirements</h2>
+                    <p>Create requirements and track sourcing progress.</p>
+                    <lightning-button
+                        label="View Requirements"
+                        variant="brand"
+                        onclick={handleViewRequirements}>
+                    </lightning-button>
+                </section>
+
+                <section class="workspace-panel">
+                    <h2>Farmer Responses</h2>
+                    <p>Review farmer offers before accepting allocations.</p>
+                    <lightning-button
+                        label="View Responses"
+                        variant="brand"
+                        onclick={handleViewResponses}>
+                    </lightning-button>
+                </section>
+
+                <section class="workspace-panel">
+                    <h2>Orders & Deliveries</h2>
+                    <p>Monitor accepted orders and delivery progress.</p>
+                    <lightning-button
+                        label="View Orders"
+                        variant="brand"
+                        onclick={handleViewOrders}>
+                    </lightning-button>
+                </section>
+
+                <section class="workspace-panel">
+                    <h2>Payment Transactions</h2>
+                    <p>Review recorded transactions and pending settlements.</p>
+                    <lightning-button
+                        label="View Payments"
+                        variant="brand"
+                        onclick={handleViewPayments}>
+                    </lightning-button>
+                </section>
+            </div>
+        </div>
+    </lightning-card>
+</template>

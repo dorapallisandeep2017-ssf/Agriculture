@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>AgriChain Factory marketplace data object.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <label>Crop Listing</label>
+    <nameField>
+        <label>Crop Listing Number</label>
+        <type>AutoNumber</type>
+        <displayFormat>AC-CRO-{000000}</displayFormat>
+    </nameField>
+    <pluralLabel>Crop Listings</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

@@ -3,10 +3,21 @@
     {
       "path": "force-app",
       "default": true
+    },
+    {
+      "path": "agri-chain-package",
+      "package": "AgriChain Factory",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "versionDescription": "AgriChain Factory Salesforce Application"
     }
   ],
   "name": "agriculture",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "66.0"
+  "sourceApiVersion": "66.0",
+  "packageAliases": {
+    "AgriChain Factory": "0HoNS0000006EZl0AM",
+    "AgriChain Factory@0.1.0-1": "04tNS000000bWfFYAU"
+  }
 }
